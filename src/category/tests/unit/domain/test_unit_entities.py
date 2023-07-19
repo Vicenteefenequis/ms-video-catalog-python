@@ -39,3 +39,46 @@ class TestCategory(unittest.TestCase):
         with self.assertRaises(FrozenInstanceError):
             category = Category(name='Movie 1')
             category.name = 'any_id'  # type: ignore
+
+    def test_update(self):
+        category = Category(name='Movie 1')
+
+        self.assertEqual(category.name, 'Movie 1')
+        self.assertIsNone(category.description)
+        self.assertTrue(category.is_active)
+
+        category.update('Movie updated', 'Movie description')
+
+        self.assertEqual(category.name, 'Movie updated')
+        self.assertEqual(category.description, 'Movie description')
+        self.assertTrue(category.is_active)
+
+    def test_deactivate(self):
+        category = Category(name='Movie 1')
+
+        self.assertEqual(category.name, 'Movie 1')
+        self.assertIsNone(category.description)
+        self.assertTrue(category.is_active)
+
+        category.deactivate()
+
+        self.assertEqual(category.name, 'Movie 1')
+        self.assertIsNone(category.description)
+        self.assertFalse(category.is_active)
+
+    def test_activate(self):
+        category = Category(
+            name='Movie 1',
+            description='Description 1',
+            is_active=False
+        )
+
+        self.assertEqual(category.name, 'Movie 1')
+        self.assertEqual(category.description, 'Description 1')
+        self.assertFalse(category.is_active)
+
+        category.activate()
+
+        self.assertEqual(category.name, 'Movie 1')
+        self.assertEqual(category.description, 'Description 1')
+        self.assertTrue(category.is_active)
