@@ -20,4 +20,5 @@ build-backend = "pdm.pep517.api"
 [tool.pdm.dev-dependencies]
 dev = [
     "autopep8>=2.0.2",
+    "pylint>=2.17.4",
 ]

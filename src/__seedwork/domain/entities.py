@@ -9,8 +9,10 @@ from __seedwork.domain.value_objects import UniqueEntityId
 @dataclass(frozen=True)
 class Entity(ABC):
     unique_entity_id: UniqueEntityId = field(
-        default_factory=lambda: UniqueEntityId())
+        default_factory=UniqueEntityId()
+    )
 
+    # pylint: disable=invalid-name
     @property
     def id(self):
         return str(self.unique_entity_id)
