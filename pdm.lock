@@ -2,11 +2,11 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default"]
+groups = ["default", "dev"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:529f795aa0abc1aff8a133e1aeee5f9e5c74de8c4522e71ca0393ad3c8f115e0"
+content_hash = "sha256:e40f5c10a1099a07d7eb933b8c7a1d0350a5984c9ce6542650e20438452f2ae3"
 
 [[package]]
 name = "autopep8"
