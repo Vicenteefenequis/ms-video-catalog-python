@@ -38,4 +38,4 @@ class TestCategory(unittest.TestCase):
     def test_is_immutable(self):
         with self.assertRaises(FrozenInstanceError):
             category = Category(name='Movie 1')
-            category.id = 'any_id'  # type: ignore
+            category.name = 'any_id'  # type: ignore
