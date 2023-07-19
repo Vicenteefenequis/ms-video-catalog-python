@@ -1,6 +1,5 @@
 
 
-
 from abc import ABC
 from dataclasses import dataclass, is_dataclass
 import unittest
@@ -13,6 +12,7 @@ from __seedwork.domain.value_objects import UniqueEntityId
 class StubEntity(Entity):
     prop1: str
     prop2: str
+
 
 class TestEntityUnit(unittest.TestCase):
 
@@ -28,28 +28,27 @@ class TestEntityUnit(unittest.TestCase):
         self.assertEqual(entity.prop2, 'value2')
         self.assertIsInstance(entity.unique_entity_id, UniqueEntityId)
         self.assertEqual(entity.unique_entity_id.id, entity.id)
-    
+
     def test_accept_a_valid_uuid(self):
         entity = StubEntity(
-            unique_entity_id=UniqueEntityId('114e527b-d222-44f1-86c7-1cb621f44849'),
+            unique_entity_id=UniqueEntityId(
+                '114e527b-d222-44f1-86c7-1cb621f44849'),
             prop1='value1',
             prop2='value2'
         )
 
         self.assertEqual(entity.id, '114e527b-d222-44f1-86c7-1cb621f44849')
-    
 
     def test_to_dict_method(self):
         entity = StubEntity(
-            unique_entity_id=UniqueEntityId('114e527b-d222-44f1-86c7-1cb621f44849'),
+            unique_entity_id=UniqueEntityId(
+                '114e527b-d222-44f1-86c7-1cb621f44849'),
             prop1='value1',
             prop2='value2'
         )
 
         self.assertDictEqual(entity.to_dict(), {
-            'id':'114e527b-d222-44f1-86c7-1cb621f44849',
+            'id': '114e527b-d222-44f1-86c7-1cb621f44849',
             'prop1': 'value1',
             'prop2': 'value2'
         })
-
-        
