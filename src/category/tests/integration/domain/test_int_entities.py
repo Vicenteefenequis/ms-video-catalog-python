@@ -22,3 +22,17 @@ class TestCategoryIntegration(unittest.TestCase):
             assert_error.exception.args[0],
             "The name is required"
         )
+
+        with self.assertRaises(ValidationException) as assert_error:
+            Category(name=5)  # type: ignore
+        self.assertEqual(
+            assert_error.exception.args[0],
+            "The name must be a string"
+        )
+
+        with self.assertRaises(ValidationException) as assert_error:
+            Category(name="t" * 256)  # type: ignore
+        self.assertEqual(
+            assert_error.exception.args[0],
+            "The name must be less than 255 characters"
+        )
