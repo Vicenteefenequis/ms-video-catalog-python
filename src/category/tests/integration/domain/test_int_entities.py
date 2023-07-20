@@ -15,3 +15,10 @@ class TestCategoryIntegration(unittest.TestCase):
             assert_error.exception.args[0],
             "The name is required"
         )
+
+        with self.assertRaises(ValidationException) as assert_error:
+            Category(name='')
+        self.assertEqual(
+            assert_error.exception.args[0],
+            "The name is required"
+        )
