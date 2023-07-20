@@ -128,3 +128,73 @@ class TestValidatorRules(unittest.TestCase):
                 ValidatorRules.values(i['value'], i['prop']).boolean(),
                 ValidatorRules
             )
+
+    def test_throw_a_validation_exception_when_combine_two_or_more_rules(self):
+        with self.assertRaises(ValidationException) as assert_error:
+            # pylint: disable=expression-not-assigned
+            ValidatorRules.values(
+                value=None,
+                prop='prop'
+            ).required().string().max_length(5)
+
+        self.assertEqual(
+            'The prop is required',
+            assert_error.exception.args[0]
+        )
+
+        with self.assertRaises(ValidationException) as assert_error:
+            # pylint: disable=expression-not-assigned
+            ValidatorRules.values(
+                value=5,
+                prop='prop'
+            ).required().string().max_length(5)
+
+        self.assertEqual(
+            'The prop must be a string',
+            assert_error.exception.args[0]
+        )
+
+        with self.assertRaises(ValidationException) as assert_error:
+            # pylint: disable=expression-not-assigned
+            ValidatorRules.values(
+                value="t" * 6,
+                prop='prop'
+            ).required().string().max_length(5)
+
+        self.assertEqual(
+            'The prop must be less than 5 characters',
+            assert_error.exception.args[0]
+        )
+
+        with self.assertRaises(ValidationException) as assert_error:
+            # pylint: disable=expression-not-assigned
+            ValidatorRules.values(
+                value=None,
+                prop='prop'
+            ).required().boolean()
+
+        self.assertEqual(
+            'The prop is required',
+            assert_error.exception.args[0]
+        )
+
+        with self.assertRaises(ValidationException) as assert_error:
+            # pylint: disable=expression-not-assigned
+            ValidatorRules.values(
+                value=5,
+                prop='prop'
+            ).required().boolean()
+
+        self.assertEqual(
+            'The prop must be a boolean',
+            assert_error.exception.args[0]
+        )
+
+    def test_valid_cases_for_combination_between_rules(self):
+        ValidatorRules('test', 'prop').required().string()
+        ValidatorRules('t' * 5, 'prop').required().string().max_length(5)
+
+        ValidatorRules(True, 'prop').required().boolean()
+        ValidatorRules(False, 'prop').required().boolean()
+        # pylint: disable=redundant-unittest-assert
+        self.assertTrue(True)

@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
 from __seedwork.domain.entities import Entity
+from __seedwork.domain.validators import ValidatorRules
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -13,7 +14,17 @@ class Category(Entity):
         default_factory=lambda: datetime.now()
     )
 
+    def __new__(cls, **kwargs):
+        cls.validate(
+            name=kwargs.get('name'),  # type: ignore
+            description=kwargs.get('description'),  # type: ignore
+            is_active=kwargs.get('is_active')  # type: ignore
+        )
+
+        return super(Category, cls).__new__(cls)
+
     def update(self, name: str, description: str):
+        self.validate(name, description)
         self._set('name', name)
         self._set('description', description)
 
@@ -22,3 +33,10 @@ class Category(Entity):
 
     def deactivate(self):
         self._set('is_active', False)
+
+    @classmethod
+    # type: ignore
+    def validate(cls, name: str, description: str, is_active: Optional[bool] = None):
+        ValidatorRules.values(name, "name").required().string().max_length(255)
+        ValidatorRules.values(description, "description").string()
+        ValidatorRules.values(is_active, "is_active").boolean()
