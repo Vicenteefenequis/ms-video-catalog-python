@@ -3,11 +3,13 @@
 from abc import ABC
 import abc
 from dataclasses import dataclass
-from typing import Any, Dict, Generic, List, Optional, TypeVar
-
+from typing import Any, Dict, Generic, List, TypeVar
 from rest_framework.serializers import Serializer
-
+from django.conf import settings
 from .exceptions import ValidationException
+
+if not settings.configured:
+    settings.configure(USE_I18N=False)
 
 
 @dataclass(frozen=True, slots=True)
@@ -63,7 +65,9 @@ class DRFValidator(ValidatorFieldsInterface[PropsValidated], ABC):
 
     def validate(self, data: Serializer) -> bool:
         if data.is_valid():
-            self.validated_data = data.validated_data  # type: ignore
+            self.validated_data = dict(
+                data.validated_data  # type: ignore
+            )
             return True
         else:
             self.errors = {
