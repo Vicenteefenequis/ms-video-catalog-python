@@ -1,7 +1,11 @@
 
 
+from abc import ABC
+import abc
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Dict, Generic, List, Optional, TypeVar
+
+from rest_framework.serializers import Serializer
 
 from .exceptions import ValidationException
 
@@ -38,3 +42,32 @@ class ValidatorRules:
                 f'The {self.prop} must be a boolean'
             )
         return self
+
+
+ErrorFields = Dict[str, List[str]]
+
+PropsValidated = TypeVar('PropsValidated')
+
+
+@dataclass(slots=True)
+class ValidatorFieldsInterface(ABC, Generic[PropsValidated]):
+    errors: ErrorFields = None  # type: ignore
+    validated_data: ErrorFields = None  # type: ignore
+
+    @abc.abstractmethod
+    def validate(self, data: Any) -> bool:
+        raise NotImplementedError()
+
+
+class DRFValidator(ValidatorFieldsInterface[PropsValidated], ABC):
+
+    def validate(self, data: Serializer) -> bool:
+        if data.is_valid():
+            self.validated_data = data.validated_data  # type: ignore
+            return True
+        else:
+            self.errors = {
+                field: [str(_error) for _error in _errors]
+                for field, _errors in data.errors.items()
+            }
+            return False

@@ -6,6 +6,7 @@ authors = [
     {name = "Vicente Junior", email = "vicente19981@live.com"},
 ]
 dependencies = [
+    "djangorestframework>=3.14.0",
 ]
 requires-python = ">=3.10.2"
 readme = "README.md"
