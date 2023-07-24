@@ -1,7 +1,7 @@
 
 
 import unittest
-from __seedwork.domain.exceptions import ValidationException
+from __seedwork.domain.exceptions import EntityValidationException, ValidationException
 
 from category.domain.entities import Category
 
@@ -9,48 +9,39 @@ from category.domain.entities import Category
 class TestCategoryIntegration(unittest.TestCase):
 
     def test_create_with_invalid_cases_for_name_prop(self):
-        with self.assertRaises(ValidationException) as assert_error:
-            Category(name=None)  # type: ignore
-        self.assertEqual(
-            assert_error.exception.args[0],
-            "The name is required"
-        )
 
-        with self.assertRaises(ValidationException) as assert_error:
-            Category(name='')
-        self.assertEqual(
-            assert_error.exception.args[0],
-            "The name is required"
-        )
+        invalid_data = [
+            {'data': {'name': None}, 'expected': 'This field may not be null.'},
+            {'data': {'name': ''}, 'expected': 'This field may not be blank.'},
+            {'data': {'name': 5}, 'expected': 'Not a valid string.'},
+            {'data': {'name': 'a' * 256},
+                'expected': 'Ensure this field has no more than 255 characters.'},
+        ]
 
-        with self.assertRaises(ValidationException) as assert_error:
-            Category(name=5)  # type: ignore
-        self.assertEqual(
-            assert_error.exception.args[0],
-            "The name must be a string"
-        )
-
-        with self.assertRaises(ValidationException) as assert_error:
-            Category(name="t" * 256)  # type: ignore
-        self.assertEqual(
-            assert_error.exception.args[0],
-            "The name must be less than 255 characters"
-        )
+        for i in invalid_data:
+            with self.assertRaises(EntityValidationException) as assert_error:
+                Category(**i['data'])  # type: ignore
+            self.assertIn('name', assert_error.exception.error)
+            self.assertEqual(
+                assert_error.exception.error['name'],
+                [i['expected']],
+                f'Expected: {i["expected"]}, Actual: {assert_error.exception.error["name"][0]}'
+            )
 
     def test_create_with_invalid_cases_for_description_prop(self):
-        with self.assertRaises(ValidationException) as assert_error:
+        with self.assertRaises(EntityValidationException) as assert_error:
             Category(name='Movie', description=5)  # type: ignore
         self.assertEqual(
-            assert_error.exception.args[0],
-            "The description must be a string"
+            assert_error.exception.error['description'],
+            ['Not a valid string.']
         )
 
     def test_create_with_invalid_cases_for_is_active_prop(self):
-        with self.assertRaises(ValidationException) as assert_error:
+        with self.assertRaises(EntityValidationException) as assert_error:
             Category(name='Movie', is_active=5)  # type: ignore
         self.assertEqual(
-            assert_error.exception.args[0],
-            "The is_active must be a boolean"
+            assert_error.exception.error['is_active'],
+            ['Must be a valid boolean.']
         )
 
     def test_valid_cases(self):
@@ -65,46 +56,38 @@ class TestCategoryIntegration(unittest.TestCase):
                 description='some description',
                 is_active=False
             )
-        except ValidationException as exception:
-            self.fail(f'Some prop is not valid. Error: {exception.args[0]}')
+        except EntityValidationException as exception:
+            self.fail(f'Some prop is not valid. Error: {exception.error}')
 
     def test_update_with_invalid_cases_for_name_prop(self):
+
+        invalid_data = [
+            {'data': {'name': None}, 'expected': 'This field may not be null.'},
+            {'data': {'name': ''}, 'expected': 'This field may not be blank.'},
+            {'data': {'name': 5}, 'expected': 'Not a valid string.'},
+            {'data': {'name': 'a' * 256},
+                'expected': 'Ensure this field has no more than 255 characters.'},
+        ]
+
         category = Category(name='Movie')
-        with self.assertRaises(ValidationException) as assert_error:
-            category.update(None, None)  # type: ignore
-        self.assertEqual(
-            assert_error.exception.args[0],
-            "The name is required"
-        )
 
-        with self.assertRaises(ValidationException) as assert_error:
-            category.update('', None)  # type: ignore
-        self.assertEqual(
-            assert_error.exception.args[0],
-            "The name is required"
-        )
-
-        with self.assertRaises(ValidationException) as assert_error:
-            category.update(5, None)  # type: ignore
-        self.assertEqual(
-            assert_error.exception.args[0],
-            "The name must be a string"
-        )
-
-        with self.assertRaises(ValidationException) as assert_error:
-            category.update("t" * 256, None)  # type: ignore
-        self.assertEqual(
-            assert_error.exception.args[0],
-            "The name must be less than 255 characters"
-        )
+        for i in invalid_data:
+            with self.assertRaises(EntityValidationException) as assert_error:
+                category.update(**i['data'])
+            self.assertIn('name', assert_error.exception.error)
+            self.assertEqual(
+                assert_error.exception.error['name'],
+                [i['expected']],
+                f'Expected: {i["expected"]}, Actual: {assert_error.exception.error["name"][0]}'
+            )
 
     def test_update_with_invalid_cases_for_description_prop(self):
         category = Category(name='Movie')
-        with self.assertRaises(ValidationException) as assert_error:
+        with self.assertRaises(EntityValidationException) as assert_error:
             category.update(name='Movie', description=5)  # type: ignore
         self.assertEqual(
-            assert_error.exception.args[0],
-            "The description must be a string"
+            assert_error.exception.error['description'],
+            ['Not a valid string.']
         )
 
     def test_update_with_valid_cases(self):
@@ -115,5 +98,5 @@ class TestCategoryIntegration(unittest.TestCase):
             category.update(name='Movie', description='some description')
             category.update(name='Movie', description="")
 
-        except ValidationException as exception:
-            self.fail(f'Some prop is not valid. Error: {exception.args[0]}')
+        except EntityValidationException as exception:
+            self.fail(f'Some prop is not valid. Error: {exception.error}')
