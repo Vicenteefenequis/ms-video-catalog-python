@@ -2,7 +2,7 @@
 
 from abc import ABC
 import abc
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, TypeVar, Generic
 from __seedwork.domain.entities import Entity
 from __seedwork.domain.exceptions import NotFoundException
@@ -38,7 +38,7 @@ class RepositoryInterface(Generic[ET], ABC):
 @dataclass(slots=True)
 class InMemoryRepository(RepositoryInterface[ET], ABC):
 
-    items: List[ET] = []
+    items: List[ET] = field(default_factory=lambda: [])
 
     def insert(self, entity: ET) -> None:
         self.items.append(entity)
