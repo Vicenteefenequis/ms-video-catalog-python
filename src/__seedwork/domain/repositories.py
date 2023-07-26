@@ -2,7 +2,8 @@
 
 from abc import ABC
 import abc
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
+import math
 from typing import Any, List, Optional, TypeVar, Generic
 from __seedwork.domain.entities import Entity
 from __seedwork.domain.exceptions import NotFoundException
@@ -83,9 +84,8 @@ class SearchParams(Generic[Filter]):
         if not self.sort:
             self.sort_dir = None
             return
-        self.sort_dir = str(self.sort_dir).lower()
-
-        self.sort_dir = 'asc' if self.sort_dir == 'asc' else 'desc'
+        sort_dir = str(self.sort_dir).lower()
+        self.sort_dir = 'asc' if sort_dir not in ['asc', 'desc'] else sort_dir
 
     def _normalize_filter(self):
         self.filter = None if self.filter == "" or self.filter is None else str(  # type: ignore
@@ -100,9 +100,25 @@ class SearchParams(Generic[Filter]):
 
     def _get_dataclass_field(self, field_name: str) -> Any:
         # pylint: disable=no-member
-        print("TESTEEEEEEE@@@@@@@@@@@",
-              SearchParams.__dataclass_fields__[field_name])
         return SearchParams.__dataclass_fields__[field_name]
+
+
+@dataclass(slots=True, kw_only=True)
+class SearchResult(Generic[ET, Filter]):
+    items: List[ET]
+    total: int
+    current_page: int
+    per_page: int
+    last_page: int = field(init=False)
+    sort: Optional[str] = None
+    sort_dir: Optional[str] = None
+    filter: Optional[Filter] = None
+
+    def __post_init__(self):
+        self.last_page = math.ceil(self.total / self.per_page)
+
+    def to_dict(self):
+        return asdict(self)
 
 
 @dataclass(slots=True)
