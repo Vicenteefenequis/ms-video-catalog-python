@@ -103,7 +103,7 @@ class SearchParams(Generic[Filter]):
         return SearchParams.__dataclass_fields__[field_name]
 
 
-@dataclass(slots=True, kw_only=True)
+@dataclass(slots=True, frozen=True, kw_only=True)
 class SearchResult(Generic[ET, Filter]):
     items: List[ET]
     total: int
@@ -115,10 +115,23 @@ class SearchResult(Generic[ET, Filter]):
     filter: Optional[Filter] = None
 
     def __post_init__(self):
-        self.last_page = math.ceil(self.total / self.per_page)
+        object.__setattr__(
+            self,
+            'last_page',
+            math.ceil(self.total / self.per_page)
+        )
 
     def to_dict(self):
-        return asdict(self)
+        return {
+            'items': self.items,
+            'total': self.total,
+            'current_page': self.current_page,
+            'per_page': self.per_page,
+            'last_page': self.last_page,
+            'sort': self.sort,
+            'sort_dir': self.sort_dir,
+            'filter': self.filter
+        }
 
 
 @dataclass(slots=True)
@@ -151,3 +164,16 @@ class InMemoryRepository(RepositoryInterface[ET], ABC):
         if not entity:
             raise NotFoundException(f"Entity not found using ID '{entity_id}'")
         return entity
+
+
+class InMemorySearchableRepository(
+    Generic[ET, Filter],
+    InMemoryRepository[ET],
+    SearchableRepositoryInterface[
+        ET,
+        SearchParams[Filter],
+        SearchResult
+    ]
+):
+    def search(self, input_params: SearchParams[Filter]) -> SearchResult:
+        return super().search(input_params)
