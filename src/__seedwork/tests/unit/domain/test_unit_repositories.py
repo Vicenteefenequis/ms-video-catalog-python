@@ -135,6 +135,9 @@ class TestSearchableRepository(unittest.TestCase):
             assert_error.exception.args[0]
         )
 
+    def test_sortable_fields_prop(self):
+        self.assertEqual(SearchableRepositoryInterface.sortable_fields, [])
+
 
 class TestSearchParams(unittest.TestCase):
 

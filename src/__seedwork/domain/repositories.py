@@ -2,9 +2,11 @@
 
 from abc import ABC
 import abc
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 import math
 from typing import Any, List, Optional, TypeVar, Generic
+
+from tomlkit import item
 from __seedwork.domain.entities import Entity
 from __seedwork.domain.exceptions import NotFoundException
 
@@ -41,6 +43,9 @@ Output = TypeVar('Output')
 
 
 class SearchableRepositoryInterface(Generic[ET, Input, Output], RepositoryInterface[ET], ABC):
+
+    sortable_fields: List[str] = []
+
     @abc.abstractmethod
     def search(self, input_params: Input) -> Output:
         raise NotImplementedError()
@@ -51,8 +56,8 @@ Filter = TypeVar('Filter', str, Any)
 
 @dataclass(slots=True, kw_only=True)
 class SearchParams(Generic[Filter]):
-    page: Optional[int] = 1
-    per_page: Optional[int] = 15
+    page: int = 1
+    per_page: int = 15
     sort: Optional[str] = None
     sort_dir: Optional[str] = None
     filter: Optional[Filter] = None
@@ -173,7 +178,40 @@ class InMemorySearchableRepository(
         ET,
         SearchParams[Filter],
         SearchResult
-    ]
+    ],
+    ABC
 ):
-    def search(self, input_params: SearchParams[Filter]) -> SearchResult:
-        return super().search(input_params)
+
+    def search(self, input_params: SearchParams[Filter]) -> SearchResult[ET, Filter]:
+        items_filtered = self._apply_filter(self.items, input_params.filter)
+        items_sorted = self._apply_sort(
+            items_filtered, input_params.sort, input_params.sort_dir
+        )
+        items_paginated = self._apply_paginate(
+            items_sorted, input_params.page, input_params.per_page
+        )
+
+        return SearchResult(
+            items=items_paginated,
+            total=len(items_filtered),
+            current_page=input_params.page,
+            per_page=input_params.per_page,
+            sort=input_params.sort,
+            sort_dir=input_params.sort_dir,
+            filter=input_params.filter
+        )
+
+    @abc.abstractmethod
+    def _apply_filter(self, items: List[ET], filter_param: Filter | None) -> List[ET]:
+        raise NotImplementedError()
+
+    def _apply_sort(self, items: List[ET], sort: str | None, sort_dir: str | None) -> List[ET]:
+        if sort and sort in self.sortable_fields:
+            is_reverse = sort_dir == 'desc'
+            return sorted(items, key=lambda item: getattr(item, sort), reverse=is_reverse)
+        return items
+
+    def _apply_paginate(self, items: List[ET], page: int, per_page: int) -> List[ET]:
+        start = (page - 1) * per_page
+        limit = start + per_page
+        return items[slice(start, limit)]
