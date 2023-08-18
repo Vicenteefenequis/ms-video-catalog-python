@@ -1,4 +1,4 @@
-
+# pylint: disable=protected-access
 
 from dataclasses import dataclass
 from typing import List, Optional
@@ -6,7 +6,7 @@ import unittest
 from __seedwork.domain.entities import Entity
 from __seedwork.domain.exceptions import NotFoundException
 
-from __seedwork.domain.repositories import ET, Filter, InMemoryRepository, RepositoryInterface, SearchParams, SearchResult, SearchableRepositoryInterface
+from __seedwork.domain.repositories import ET, Filter, InMemoryRepository, InMemorySearchableRepository, RepositoryInterface, SearchParams, SearchResult, SearchableRepositoryInterface
 from __seedwork.domain.value_objects import UniqueEntityId
 
 
@@ -339,3 +339,84 @@ class TestSearchResult(unittest.TestCase):
         )
 
         self.assertEqual(result.last_page, 6)
+
+
+class StubInMemorySearchableRepository(InMemorySearchableRepository[StubEntity, str]):
+    sortable_fields: List[str] = ['name']
+
+    def _apply_filter(self, items: List[StubEntity], filter_param: str | None) -> List[StubEntity]:
+        if filter_param:
+            filter_obj = filter(
+                lambda item: filter_param.lower()
+                in item.name.lower() or filter_param.lower() == str(item.price), items
+            )
+            return list(filter_obj)
+        return items
+
+
+class TestInMemorySearchableRepository(unittest.TestCase):
+    repo: StubInMemorySearchableRepository
+
+    def setUp(self) -> None:
+        self.repo = StubInMemorySearchableRepository()  # type: ignore
+
+    def test_apply_filter(self):
+        items = [StubEntity(name='test', price=5)]
+        # pylint: disable=protected-access
+        result = self.repo._apply_filter(items, None)
+        self.assertEqual(items, result)
+
+        items = [
+            StubEntity(name='test', price=5),
+            StubEntity(name='TEST', price=5),
+            StubEntity(name='fake', price=0),
+        ]
+
+        result = self.repo._apply_filter(items, 'TEST')
+        self.assertListEqual([items[0], items[1]], result)
+
+    def test_apply_sort(self):
+        items = [
+            StubEntity(name='b', price=1),
+            StubEntity(name='a', price=0),
+            StubEntity(name='c', price=2),
+        ]
+        # pylint: disable=protected-access
+        result = self.repo._apply_sort(items, sort='price', sort_dir='asc')
+        self.assertEqual(items, result)
+
+        # pylint: disable=protected-access
+        result = self.repo._apply_sort(items, sort='name', sort_dir='asc')
+        self.assertEqual([items[1], items[0], items[2]], result)
+
+        # pylint: disable=protected-access
+        result = self.repo._apply_sort(items, sort='name', sort_dir='desc')
+        self.assertEqual([items[2], items[0], items[1]], result)
+
+        self.repo.sortable_fields.append('price')
+
+        result = self.repo._apply_sort(items, sort='price', sort_dir='asc')
+        self.assertEqual([items[1], items[0], items[2]], result)
+
+        result = self.repo._apply_sort(items, sort='price', sort_dir='desc')
+        self.assertEqual([items[2], items[0], items[1]], result)
+
+    def test_apply_paginate(self):
+        items = [
+            StubEntity(name='a', price=1),
+            StubEntity(name='b', price=1),
+            StubEntity(name='c', price=1),
+            StubEntity(name='d', price=1),
+            StubEntity(name='3', price=1),
+        ]
+        result = self.repo._apply_paginate(items, 1, 2)
+        self.assertEqual([items[0], items[1]], result)
+
+        result = self.repo._apply_paginate(items, 2, 2)
+        self.assertEqual([items[2], items[3]], result)
+
+        result = self.repo._apply_paginate(items, 3, 2)
+        self.assertEqual([items[4]], result)
+
+        result = self.repo._apply_paginate(items, 4, 2)
+        self.assertEqual([], result)
