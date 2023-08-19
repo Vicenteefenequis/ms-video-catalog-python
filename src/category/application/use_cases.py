@@ -1,4 +1,4 @@
-
+# pylint: disable=no-member
 
 from dataclasses import dataclass
 from datetime import datetime
@@ -30,8 +30,12 @@ class CreateCategoryUseCase:
     @dataclass(slots=True, frozen=True)
     class Input:
         name: str
-        description: Optional[str] = None
-        is_active: Optional[bool] = True
+        description: Optional[str] = Category.get_field(
+            'description'
+        ).default  # type: ignore
+        is_active: Optional[bool] = Category.get_field(
+            'is_active'
+        ).default  # type: ignore
 
     @dataclass(slots=True, frozen=True)
     class Output:
