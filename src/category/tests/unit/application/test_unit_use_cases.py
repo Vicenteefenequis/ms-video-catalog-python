@@ -3,6 +3,7 @@
 from typing import Optional
 import unittest
 from unittest.mock import patch
+from __seedwork.application.use_cases import UseCase
 from __seedwork.domain.exceptions import NotFoundException
 from category.application.dto import CategoryOutput
 
@@ -18,6 +19,9 @@ class TestCreateCategoryUseCaseUnit(unittest.TestCase):
     def setUp(self) -> None:
         self.category_repo = CategoryInMemoryRepository()
         self.use_case = CreateCategoryUseCase(self.category_repo)
+
+    def test_if_is_instance_a_use_case(self):
+        self.assertIsInstance(self.use_case, UseCase)
 
     def test_input(self):
         self.assertEqual(CreateCategoryUseCase.Input.__annotations__, {
@@ -88,6 +92,9 @@ class TestGetCategoryUseCaseUnit(unittest.TestCase):
     def setUp(self) -> None:
         self.category_repo = CategoryInMemoryRepository()
         self.use_case = GetCategoryUseCase(self.category_repo)
+
+    def test_if_is_instance_a_use_case(self):
+        self.assertIsInstance(self.use_case, UseCase)
 
     def test_input(self):
         self.assertEqual(GetCategoryUseCase.Input.__annotations__, {
