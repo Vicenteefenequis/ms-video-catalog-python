@@ -1,7 +1,7 @@
 
 
 from abc import ABC
-from dataclasses import asdict, dataclass, field
+from dataclasses import Field, asdict, dataclass, field
 from typing import Any
 
 from __seedwork.domain.value_objects import UniqueEntityId
@@ -27,3 +27,8 @@ class Entity(ABC):
         entity_dict.pop('unique_entity_id')
         entity_dict['id'] = self.id
         return entity_dict
+
+    @classmethod
+    def get_field(cls, entity_field: str) -> Field:
+        # pylint: disable=no-member
+        return cls.__dataclass_fields__[entity_field]
