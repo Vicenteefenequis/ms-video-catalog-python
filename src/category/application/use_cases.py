@@ -1,8 +1,8 @@
 # pylint: disable=no-member
 
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Optional
+from category.application.dto import CategoryOutput, CategoryOutputMapper
 
 from category.domain.entities import Category
 from category.domain.repositories import CategoryRepository
@@ -19,13 +19,10 @@ class CreateCategoryUseCase:
             is_active=input_param.is_active
         )
         self.category_repo.insert(category)
-        return self.Output(
-            id=category.id,
-            name=category.name,
-            description=category.description,
-            is_active=category.is_active,  # type: ignore
-            created_at=category.created_at  # type: ignore
-        )
+        return self.__to_output(category)  # type: ignore
+
+    def __to_output(self, category: Category):
+        return CategoryOutputMapper.to_output(category)
 
     @dataclass(slots=True, frozen=True)
     class Input:
@@ -38,9 +35,25 @@ class CreateCategoryUseCase:
         ).default  # type: ignore
 
     @dataclass(slots=True, frozen=True)
-    class Output:
+    class Output(CategoryOutput):
+        pass
+
+
+@dataclass(slots=True, frozen=True)
+class GetCategoryUseCase:
+    category_repo: CategoryRepository
+
+    def execute(self, input_param: 'Input') -> 'Output':
+        category = self.category_repo.find_by_id(input_param.id)
+        return self.__to_output(category)
+
+    def __to_output(self, category: Category) -> 'Output':
+        return CategoryOutputMapper.to_output(category)  # type: ignore
+
+    @dataclass(slots=True, frozen=True)
+    class Input:
         id: str
-        name: str
-        description: Optional[str]
-        is_active: bool
-        created_at: datetime
+
+    @dataclass(slots=True, frozen=True)
+    class Output(CategoryOutput):
+        pass
