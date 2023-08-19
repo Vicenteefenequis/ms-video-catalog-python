@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 import math
 from typing import Any, List, Optional, TypeVar, Generic
 
-from tomlkit import item
 from __seedwork.domain.entities import Entity
 from __seedwork.domain.exceptions import NotFoundException
 

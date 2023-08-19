@@ -143,8 +143,8 @@ class TestSearchParams(unittest.TestCase):
 
     def test_props_annotations(self):
         self.assertEqual(SearchParams.__annotations__, {
-            'page': Optional[int],
-            'per_page': Optional[int],
+            'page': int,
+            'per_page': int,
             'sort': Optional[str],
             'sort_dir': Optional[str],
             'filter': Optional[Filter]

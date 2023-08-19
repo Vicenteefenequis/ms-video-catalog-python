@@ -1,7 +1,7 @@
 
 
 import unittest
-from __seedwork.domain.exceptions import EntityValidationException, ValidationException
+from __seedwork.domain.exceptions import EntityValidationException
 
 from category.domain.entities import Category
 
