@@ -2,7 +2,7 @@
 
 from abc import ABC
 import abc
-from dataclasses import dataclass, field
+from dataclasses import Field, dataclass, field
 import math
 from typing import Any, List, Optional, TypeVar, Generic
 
@@ -55,8 +55,8 @@ Filter = TypeVar('Filter', str, Any)
 
 @dataclass(slots=True, kw_only=True)
 class SearchParams(Generic[Filter]):
-    page: int = 1
-    per_page: int = 15
+    page: Optional[int] = 1
+    per_page: Optional[int] = 15
     sort: Optional[str] = None
     sort_dir: Optional[str] = None
     filter: Optional[Filter] = None
@@ -105,6 +105,11 @@ class SearchParams(Generic[Filter]):
     def _get_dataclass_field(self, field_name: str) -> Any:
         # pylint: disable=no-member
         return SearchParams.__dataclass_fields__[field_name]
+
+    @classmethod
+    def get_field(cls, entity_field: str) -> Field:
+        # pylint: disable=no-member
+        return cls.__dataclass_fields__[entity_field]
 
 
 @dataclass(slots=True, frozen=True, kw_only=True)
@@ -187,14 +192,14 @@ class InMemorySearchableRepository(
             items_filtered, input_params.sort, input_params.sort_dir
         )
         items_paginated = self._apply_paginate(
-            items_sorted, input_params.page, input_params.per_page
+            items_sorted, input_params.page, input_params.per_page  # type: ignore
         )
 
         return SearchResult(
             items=items_paginated,
             total=len(items_filtered),
-            current_page=input_params.page,
-            per_page=input_params.per_page,
+            current_page=input_params.page,  # type: ignore
+            per_page=input_params.per_page,  # type: ignore
             sort=input_params.sort,
             sort_dir=input_params.sort_dir,
             filter=input_params.filter

@@ -15,7 +15,7 @@ class CategoryRules(serializers.Serializer):  # pylint: disable=abstract-method
     created_at = serializers.DateTimeField(required=False)
 
 
-class CategoryValidator(DRFValidator):
+class CategoryValidator(DRFValidator):  # pylint: disable=too-few-public-methods
 
     def validate(self, data: Dict) -> bool:
         rules = CategoryRules(
@@ -24,7 +24,7 @@ class CategoryValidator(DRFValidator):
         return super().validate(rules)
 
 
-class CategoryValidatorFactory:
+class CategoryValidatorFactory:  # pylint: disable=too-few-public-methods
 
     @staticmethod
     def create():

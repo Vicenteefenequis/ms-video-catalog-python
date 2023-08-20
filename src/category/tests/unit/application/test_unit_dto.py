@@ -6,7 +6,6 @@ import unittest
 
 from category.application.dto import CategoryOutput, CategoryOutputMapper
 from category.domain.entities import Category
-from category.tests import unit
 
 
 class TestCategoryOutput(unittest.TestCase):
@@ -29,7 +28,7 @@ class TestCategoryOutputMapper(unittest.TestCase):
             is_active=True,
             created_at=created_at
         )
-        output = CategoryOutputMapper.to_output(category)
+        output = CategoryOutputMapper.without_child().to_output(category)
         self.assertEqual(output, CategoryOutput(
             id=category.id,
             name=category.name,
@@ -37,3 +36,13 @@ class TestCategoryOutputMapper(unittest.TestCase):
             is_active=category.is_active,  # type: ignore
             created_at=category.created_at  # type: ignore
         ))
+
+    def test_to_output_without_child(self):
+        mapper = CategoryOutputMapper.without_child()
+        self.assertIsInstance(mapper, CategoryOutputMapper)
+        self.assertTrue(
+            issubclass(
+                mapper.output_child,  # type: ignore
+                CategoryOutput
+            )
+        )

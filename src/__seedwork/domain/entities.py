@@ -10,7 +10,7 @@ from __seedwork.domain.value_objects import UniqueEntityId
 @dataclass(frozen=True, slots=True)
 class Entity(ABC):
     unique_entity_id: UniqueEntityId = field(
-        default_factory=lambda: UniqueEntityId()
+        default_factory=lambda: UniqueEntityId()  # pylint: disable=unnecessary-lambda
     )
 
     # pylint: disable=invalid-name

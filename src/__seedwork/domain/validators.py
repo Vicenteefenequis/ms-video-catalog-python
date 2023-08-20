@@ -70,12 +70,11 @@ class DRFValidator(ValidatorFieldsInterface[PropsValidated], ABC):
                 data.validated_data  # type: ignore
             )
             return True
-        else:
-            self.errors = {
-                field: [str(_error) for _error in _errors]
-                for field, _errors in data.errors.items()
-            }
-            return False
+        self.errors = {
+            field: [str(_error) for _error in _errors]
+            for field, _errors in data.errors.items()
+        }
+        return False
 
 
 class StrictCharField(CharField):
