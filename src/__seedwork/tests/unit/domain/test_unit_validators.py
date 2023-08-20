@@ -3,10 +3,10 @@
 from dataclasses import fields
 import unittest
 from unittest.mock import MagicMock, PropertyMock, patch
-from __seedwork.domain.exceptions import ValidationException
-
-from __seedwork.domain.validators import DRFValidator, ValidatorFieldsInterface, ValidatorRules
 from rest_framework.serializers import Serializer
+
+from __seedwork.domain.exceptions import ValidationException
+from __seedwork.domain.validators import DRFValidator, ValidatorFieldsInterface, ValidatorRules
 
 
 class TestValidatorRulesUnit(unittest.TestCase):
@@ -237,7 +237,11 @@ class TestDRFValidatorUnit(unittest.TestCase):
         return_value={'field': 'value'},
         new_callable=PropertyMock
     )
-    def test_if_validated_data_is_set(self,  mock_validated_data: PropertyMock, mock_is_valid: MagicMock):
+    def test_if_validated_data_is_set(
+        self,
+        mock_validated_data: PropertyMock,
+        mock_is_valid: MagicMock
+    ):
         validator = DRFValidator()
         is_valid = validator.validate(Serializer())
         self.assertTrue(is_valid)

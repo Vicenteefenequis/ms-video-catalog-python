@@ -6,7 +6,16 @@ import unittest
 from __seedwork.domain.entities import Entity
 from __seedwork.domain.exceptions import NotFoundException
 
-from __seedwork.domain.repositories import ET, Filter, InMemoryRepository, InMemorySearchableRepository, RepositoryInterface, SearchParams, SearchResult, SearchableRepositoryInterface
+from __seedwork.domain.repositories import (
+    ET,
+    Filter,
+    InMemoryRepository,
+    InMemorySearchableRepository,
+    RepositoryInterface,
+    SearchParams,
+    SearchResult,
+    SearchableRepositoryInterface
+)
 from __seedwork.domain.value_objects import UniqueEntityId
 
 

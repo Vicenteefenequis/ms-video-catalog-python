@@ -4,9 +4,9 @@ from abc import ABC
 from dataclasses import FrozenInstanceError, dataclass, is_dataclass
 import unittest
 from unittest.mock import patch
+import uuid
 from __seedwork.domain.exceptions import InvalidUuidException
 from __seedwork.domain.value_objects import UniqueEntityId, ValueObject
-import uuid
 
 
 @dataclass(frozen=True)
@@ -57,7 +57,7 @@ class TestUniqueEntityIdUnit(unittest.TestCase):
             UniqueEntityId,
             '_UniqueEntityId__validate',
             autospec=True,
-            side_effect=UniqueEntityId._UniqueEntityId__validate  # type: ignore
+            side_effect=UniqueEntityId._UniqueEntityId__validate  # pylint: disable=protected-access # type: ignore
         ) as mock_validate:
             with self.assertRaises(InvalidUuidException) as assert_error:
                 UniqueEntityId('fake_id')
@@ -70,7 +70,7 @@ class TestUniqueEntityIdUnit(unittest.TestCase):
             UniqueEntityId,
             '_UniqueEntityId__validate',
             autospec=True,
-            side_effect=UniqueEntityId._UniqueEntityId__validate  # type: ignore
+            side_effect=UniqueEntityId._UniqueEntityId__validate   # pylint: disable=protected-access # type: ignore
         ) as mock_validate:
             value_object = UniqueEntityId(
                 '114e527b-d222-44f1-86c7-1cb621f44849')
@@ -87,7 +87,7 @@ class TestUniqueEntityIdUnit(unittest.TestCase):
             UniqueEntityId,
             '_UniqueEntityId__validate',
             autospec=True,
-            side_effect=UniqueEntityId._UniqueEntityId__validate  # type: ignore
+            side_effect=UniqueEntityId._UniqueEntityId__validate   # pylint: disable=protected-access # type: ignore
         ) as mock_validate:
             value_object = UniqueEntityId()
             uuid.UUID(value_object.id)

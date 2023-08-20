@@ -113,7 +113,7 @@ class SearchParams(Generic[Filter]):
 
 
 @dataclass(slots=True, frozen=True, kw_only=True)
-class SearchResult(Generic[ET, Filter]):
+class SearchResult(Generic[ET, Filter]):  # pylint: disable=too-many-instance-attributes
     items: List[ET]
     total: int
     current_page: int

@@ -62,7 +62,7 @@ class ValidatorFieldsInterface(ABC, Generic[PropsValidated]):
         raise NotImplementedError()
 
 
-class DRFValidator(ValidatorFieldsInterface[PropsValidated], ABC):
+class DRFValidator(ValidatorFieldsInterface[PropsValidated], ABC):  # pylint: disable=too-few-public-methods
 
     def validate(self, data: Serializer) -> bool:
         if data.is_valid():
@@ -92,9 +92,11 @@ class StrictBooleanField(BooleanField):
                 return True
             if data is False:
                 return False
-            elif data is None and self.allow_null:
+            if data is None and self.allow_null:
                 return None
+
         except TypeError:
             pass
 
         self.fail('invalid', input=data)
+        return None

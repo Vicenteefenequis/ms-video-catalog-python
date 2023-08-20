@@ -11,8 +11,10 @@ from category.application.dto import CategoryOutput, CategoryOutputMapper
 
 from category.application.use_cases import (
     CreateCategoryUseCase,
+    DeleteCategoryUseCase,
     GetCategoryUseCase,
-    ListCategoriesUseCase
+    ListCategoriesUseCase,
+    UpdateCategoryUseCase
 )
 from category.domain.entities import Category
 from category.infra.repositories import CategoryInMemoryRepository
@@ -54,7 +56,11 @@ class TestCreateCategoryUseCaseUnit(unittest.TestCase):
         )
 
     def test_execute(self):
-        with patch.object(self.category_repo, 'insert', wraps=self.category_repo.insert) as spy_insert:
+        with patch.object(
+            self.category_repo,
+            'insert',
+            wraps=self.category_repo.insert
+        ) as spy_insert:
             input_param = CreateCategoryUseCase.Input(name="Movie")
             output = self.use_case.execute(input_param)
             spy_insert.assert_called_once()
@@ -127,7 +133,11 @@ class TestGetCategoryUseCaseUnit(unittest.TestCase):
     def test_execute(self):
         category = Category(name='Movie')
         self.category_repo.items = [category]
-        with patch.object(self.category_repo, 'find_by_id', wraps=self.category_repo.find_by_id) as spy_insert:
+        with patch.object(
+            self.category_repo,
+            'find_by_id',
+            wraps=self.category_repo.find_by_id
+        ) as spy_insert:
             input_param = GetCategoryUseCase.Input(id=category.id)
             output = self.use_case.execute(input_param)
             spy_insert.assert_called_once()
@@ -163,7 +173,11 @@ class TestListCategoriesUseCase(unittest.TestCase):
             ),
         ]
 
-        with patch.object(self.category_repo, 'search', wraps=self.category_repo.search) as spy_search:
+        with patch.object(
+            self.category_repo,
+            'search',
+            wraps=self.category_repo.search
+        ) as spy_search:
             input_param = ListCategoriesUseCase.Input()
             output = self.use_case.execute(input_param)
             spy_search.assert_called_once()
@@ -263,3 +277,131 @@ class TestListCategoriesUseCase(unittest.TestCase):
             per_page=2,
             last_page=2
         ))
+
+
+class TestUpdateCategoryUseCase(unittest.TestCase):
+    category_repo: CategoryInMemoryRepository
+    use_case: UpdateCategoryUseCase
+
+    def setUp(self) -> None:
+        self.category_repo = CategoryInMemoryRepository()
+        self.use_case = UpdateCategoryUseCase(self.category_repo)
+
+    def test_if_is_instance_a_use_case(self):
+        self.assertIsInstance(self.use_case, UseCase)
+
+    def test_input(self):
+        self.assertEqual(UpdateCategoryUseCase.Input.__annotations__, {
+            'id': str,
+            'name': str,
+            'description': Optional[str],
+            'is_active': Optional[bool]
+        })
+
+    def test_output(self):
+        self.assertTrue(
+            issubclass(UpdateCategoryUseCase.Output, CategoryOutput)
+        )
+
+    def test_execute(self):
+        category = Category(name='Movie')
+        self.category_repo.items = [category]
+
+        with patch.object(
+            self.category_repo,
+            'find_by_id',
+            wraps=self.category_repo.find_by_id
+        ) as spy_find_by_id, \
+                patch.object(
+            self.category_repo,
+            'update',
+            wraps=self.category_repo.update
+        ) as spy_update:
+            input_param = UpdateCategoryUseCase.Input(
+                id=category.id,
+                name='Movie 2',
+                description='some description',
+                is_active=False
+            )
+            output = self.use_case.execute(input_param)
+            spy_find_by_id.assert_called_once()
+            spy_update.assert_called_once()
+            self.assertEqual(output, CategoryOutput(
+                id=self.category_repo.items[0].id,
+                name='Movie 2',
+                description='some description',
+                is_active=False,
+                created_at=self.category_repo.items[0].created_at
+            ))
+
+        input_param = UpdateCategoryUseCase.Input(
+            id=category.id,
+            name='Movie 2',
+            description='some description',
+            is_active=True
+        )
+
+        output = self.use_case.execute(input_param)
+
+        self.assertEqual(output, CategoryOutput(
+            id=self.category_repo.items[0].id,
+            name='Movie 2',
+            description='some description',
+            is_active=True,
+            created_at=self.category_repo.items[0].created_at
+        ))
+
+    def test_throw_exception_when_category_not_found(self):
+        input_param = UpdateCategoryUseCase.Input(
+            id='fake_id',
+            name='Movie 2',
+            description='some description',
+            is_active=True
+        )
+        with self.assertRaises(NotFoundException) as assert_error:
+            self.use_case.execute(input_param)
+        self.assertEqual(
+            assert_error.exception.args[0],
+            "Entity not found using ID 'fake_id'"
+        )
+
+
+class TestDeleteCategoryUseCase(unittest.TestCase):
+    category_repo: CategoryInMemoryRepository
+    use_case: DeleteCategoryUseCase
+
+    def setUp(self) -> None:
+        self.category_repo = CategoryInMemoryRepository()
+        self.use_case = DeleteCategoryUseCase(self.category_repo)
+
+    def test_if_is_instance_a_use_case(self):
+        self.assertIsInstance(self.use_case, UseCase)
+
+    def test_input(self):
+        self.assertEqual(
+            DeleteCategoryUseCase.Input.__annotations__, {
+                'id': str,
+            }
+        )
+
+    def test_execute(self):
+        category = Category(name='Movie')
+        self.category_repo.items = [category]
+
+        with patch.object(
+            self.category_repo,
+            'delete',
+            wraps=self.category_repo.delete
+        ) as spy_delete:
+            input_param = DeleteCategoryUseCase.Input(id=category.id)
+            self.use_case.execute(input_param)
+            spy_delete.assert_called_once()
+
+    def test_throw_exception_when_category_not_found(self):
+        input_param = DeleteCategoryUseCase.Input(id='fake_id')
+        with self.assertRaises(NotFoundException) as assert_error:
+            self.use_case.execute(input_param)
+        self.assertEqual(
+            assert_error.exception.args[0],
+            "Entity not found using ID 'fake_id'"
+        )

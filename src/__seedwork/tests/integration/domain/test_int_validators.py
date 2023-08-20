@@ -1,8 +1,6 @@
 import unittest
 from rest_framework import serializers
 from __seedwork.domain.validators import DRFValidator, StrictBooleanField, StrictCharField
-from rest_framework.exceptions import ErrorDetail
-
 # pylint: disable=abstract-method
 
 

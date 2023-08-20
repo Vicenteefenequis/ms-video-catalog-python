@@ -10,7 +10,7 @@ from category.domain.entities import Category
 
 @dataclass(frozen=True, slots=True)
 class CategoryOutput:
-    id: str
+    id: str  # pylint: disable=invalid-name
     name: str
     description: Optional[str]
     is_active: bool
@@ -22,7 +22,7 @@ Output = TypeVar('Output', bound=CategoryOutput)
 
 class CategoryOutputMapper:
 
-    output_child: Optional[Output] = CategoryOutput
+    output_child: Optional[Output] = CategoryOutput  # type: ignore
 
     @staticmethod
     def from_child(output_child: Output):
@@ -32,7 +32,7 @@ class CategoryOutputMapper:
     def without_child():
         return CategoryOutputMapper()
 
-    def to_output(self, category: Category) -> CategoryOutput:
+    def to_output(self, category: Category) -> Output:
         return CategoryOutput(
             id=category.id,
             name=category.name,
