@@ -4,5 +4,6 @@ services:
   app:
     build: .
     container_name: micro-videos-python-app
+    command: ./.docker/start-app.sh
     volumes:
       - .:/home/python/app
