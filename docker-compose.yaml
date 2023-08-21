@@ -7,3 +7,5 @@ services:
     command: ./.docker/start-app.sh
     volumes:
       - .:/home/python/app
+    ports:
+      - 8000:8000
