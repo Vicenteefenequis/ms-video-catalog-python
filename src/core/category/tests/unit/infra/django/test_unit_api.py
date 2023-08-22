@@ -3,13 +3,14 @@
 from datetime import datetime
 import unittest
 from unittest import mock
-from core.category.application.dto import CategoryOutput
-from rest_framework.test import APIRequestFactory
 from rest_framework.request import Request
+from rest_framework.test import APIRequestFactory
 
+from core.category.application.dto import CategoryOutput
 from core.category.application.use_cases import (
     CreateCategoryUseCase,
-    ListCategoriesUseCase
+    ListCategoriesUseCase,
+    GetCategoryUseCase
 )
 from core.category.infra.django.api import CategoryResource
 
@@ -49,7 +50,7 @@ class TestCategoryResourceUnit(unittest.TestCase):
             'created_at': mock_create_use_case.execute.return_value.created_at
         })
 
-    def test_list_method(self):
+    def test_get_method(self):
         mock_list_use_case = mock.Mock(ListCategoriesUseCase)
 
         mock_list_use_case.execute.return_value = ListCategoriesUseCase.Output(
@@ -103,8 +104,75 @@ class TestCategoryResourceUnit(unittest.TestCase):
             'last_page': 1
         })
 
+    def test_if_get_invoke_get_object_method(self):
+        mock_get_use_case = mock.Mock(GetCategoryUseCase)
+        mock_list_use_case = mock.Mock(ListCategoriesUseCase)
+
+        mock_get_use_case.execute.return_value = GetCategoryUseCase.Output(
+            id='114e527b-d222-44f1-86c7-1cb621f44849',
+            name='Movie',
+            description=None,
+            is_active=True,
+            created_at=datetime.now()
+        )
+
+        resource = CategoryResource(**{
+            **self.__init_all_none(),
+            'list_use_case': lambda: mock_list_use_case,
+            'get_use_case': lambda: mock_get_use_case
+        })
+
+        response = resource.get(
+            None, '114e527b-d222-44f1-86c7-1cb621f44849'  # type: ignore
+        )
+        mock_get_use_case.execute.assert_called_with(GetCategoryUseCase.Input(
+            id='114e527b-d222-44f1-86c7-1cb621f44849'
+        ))
+
+        mock_list_use_case.execute.assert_not_called()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {
+            'id': '114e527b-d222-44f1-86c7-1cb621f44849',
+            'name': 'Movie',
+            'description': None,
+            'is_active': True,
+            'created_at': mock_get_use_case.execute.return_value.created_at
+        })
+
+    def test_get_object_method(self):
+        mock_get_use_case = mock.Mock(GetCategoryUseCase)
+
+        mock_get_use_case.execute.return_value = GetCategoryUseCase.Output(
+            id='114e527b-d222-44f1-86c7-1cb621f44849',
+            name='Movie',
+            description=None,
+            is_active=True,
+            created_at=datetime.now()
+        )
+
+        resource = CategoryResource(**{
+            **self.__init_all_none(),
+            'get_use_case': lambda: mock_get_use_case
+        })
+
+        response = resource.get_object('114e527b-d222-44f1-86c7-1cb621f44849')
+        mock_get_use_case.execute.assert_called_with(GetCategoryUseCase.Input(
+            id='114e527b-d222-44f1-86c7-1cb621f44849'
+        ))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {
+            'id': '114e527b-d222-44f1-86c7-1cb621f44849',
+            'name': 'Movie',
+            'description': None,
+            'is_active': True,
+            'created_at': mock_get_use_case.execute.return_value.created_at
+        })
+
     def __init_all_none(self):
         return {
             'list_use_case': None,
-            'create_use_case': None
+            'create_use_case': None,
+            'get_use_case': None
         }
