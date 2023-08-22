@@ -1,7 +1,7 @@
 GET http://localhost:8000/categories/
 
 ###
-GET http://localhost:8000/categories/9411b83c-c773-4a09-85e3-600c6bfb33ca/
+GET http://localhost:8000/categories/2f5c598c-6c50-4aaa-97f4-0800aac7a7de/
 
 ###
 POST http://localhost:8000/categories/
@@ -21,3 +21,6 @@ Content-Type: application/json
     "description": "some desc",
     "is_active": false
 }
+
+###
+DELETE http://localhost:8000/categories/2f5c598c-6c50-4aaa-97f4-0800aac7a7de/

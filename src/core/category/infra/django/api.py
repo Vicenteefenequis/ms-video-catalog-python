@@ -10,7 +10,8 @@ from core.category.application.use_cases import (
     CreateCategoryUseCase,
     GetCategoryUseCase,
     ListCategoriesUseCase,
-    UpdateCategoryUseCase
+    UpdateCategoryUseCase,
+    DeleteCategoryUseCase
 )
 
 
@@ -20,6 +21,7 @@ class CategoryResource(APIView):
     list_use_case: Callable[[], ListCategoriesUseCase]
     get_use_case: Callable[[], GetCategoryUseCase]
     update_use_case: Callable[[], UpdateCategoryUseCase]
+    delete_use_case: Callable[[], DeleteCategoryUseCase]
 
     def post(self, request: Request):
         input_param = CreateCategoryUseCase.Input(
@@ -51,3 +53,8 @@ class CategoryResource(APIView):
         )
         output = self.update_use_case().execute(input_param)
         return Response(asdict(output))
+
+    def delete(self, _request: Request, id: str):  # pylint: disable=redefined-builtin, invalid-name
+        input_param = DeleteCategoryUseCase.Input(id=id)
+        self.delete_use_case().execute(input_param)
+        return Response(status=status.HTTP_204_NO_CONTENT)

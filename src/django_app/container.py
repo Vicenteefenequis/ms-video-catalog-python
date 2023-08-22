@@ -1,4 +1,4 @@
-from core.category.application.use_cases import CreateCategoryUseCase, GetCategoryUseCase, ListCategoriesUseCase, UpdateCategoryUseCase
+from core.category.application.use_cases import CreateCategoryUseCase, DeleteCategoryUseCase, GetCategoryUseCase, ListCategoriesUseCase, UpdateCategoryUseCase
 from dependency_injector import containers, providers
 from core.category.infra.in_memory.repositories import CategoryInMemoryRepository
 
@@ -21,4 +21,8 @@ class Container(containers.DeclarativeContainer):
 
     use_case_category_update_category = providers.Singleton(
         UpdateCategoryUseCase, category_repo=repository_category_in_memory
+    )
+
+    use_case_category_delete_category = providers.Singleton(
+        DeleteCategoryUseCase, category_repo=repository_category_in_memory
     )

@@ -1,3 +1,4 @@
 [MASTER]
+extension-pkg-allow-list=dependecy_injector
 ignore=__pypackages__/**/*.py
 disable=C0111,R0801
