@@ -9,6 +9,7 @@ from rest_framework.test import APIRequestFactory
 from core.category.application.dto import CategoryOutput
 from core.category.application.use_cases import (
     CreateCategoryUseCase,
+    DeleteCategoryUseCase,
     ListCategoriesUseCase,
     GetCategoryUseCase,
     UpdateCategoryUseCase
@@ -213,10 +214,35 @@ class TestCategoryResourceUnit(unittest.TestCase):
             'created_at': mock_update_use_case.execute.return_value.created_at
         })
 
+    def test_delete_method(self):
+        send_data = {
+            'id': '114e527b-d222-44f1-86c7-1cb621f44849',
+        }
+        mock_delete_use_case = mock.Mock(DeleteCategoryUseCase)
+
+        resource = CategoryResource(**{
+            **self.__init_all_none(),
+            'delete_use_case': lambda: mock_delete_use_case
+        })
+        _request = APIRequestFactory().delete('/', send_data)
+        request = Request(_request)
+        request._full_data = send_data  # pylint: disable=protected-access
+        response = resource.delete(
+            request,
+            send_data['id']
+        )
+        response = resource.delete(request, send_data['id'])
+        mock_delete_use_case.execute.assert_called_with(DeleteCategoryUseCase.Input(
+            id=send_data['id']
+        ))
+
+        self.assertEqual(response.status_code, 204)
+
     def __init_all_none(self):
         return {
             'list_use_case': None,
             'create_use_case': None,
             'get_use_case': None,
             'update_use_case': None,
+            'delete_use_case': None
         }
