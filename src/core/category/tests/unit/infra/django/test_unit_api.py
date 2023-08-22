@@ -10,7 +10,8 @@ from core.category.application.dto import CategoryOutput
 from core.category.application.use_cases import (
     CreateCategoryUseCase,
     ListCategoriesUseCase,
-    GetCategoryUseCase
+    GetCategoryUseCase,
+    UpdateCategoryUseCase
 )
 from core.category.infra.django.api import CategoryResource
 
@@ -170,9 +171,52 @@ class TestCategoryResourceUnit(unittest.TestCase):
             'created_at': mock_get_use_case.execute.return_value.created_at
         })
 
+    def test_put_method(self):
+        send_data = {
+            'id': '114e527b-d222-44f1-86c7-1cb621f44849',
+            'name': 'Movie 2',
+            'description': 'some description'
+        }
+        mock_update_use_case = mock.Mock(UpdateCategoryUseCase)
+
+        mock_update_use_case.execute.return_value = UpdateCategoryUseCase.Output(
+            id=send_data['id'],
+            name=send_data['name'],
+            description=send_data['description'],
+            is_active=True,
+            created_at=datetime.now()
+        )
+
+        resource = CategoryResource(**{
+            **self.__init_all_none(),
+            'update_use_case': lambda: mock_update_use_case
+        })
+        _request = APIRequestFactory().put('/', send_data)
+        request = Request(_request)
+        request._full_data = send_data  # pylint: disable=protected-access
+        response = resource.put(
+            request,
+            send_data['id']
+        )
+        mock_update_use_case.execute.assert_called_with(UpdateCategoryUseCase.Input(
+            id=send_data['id'],
+            name=send_data['name'],
+            description=send_data['description']
+        ))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {
+            'id': send_data['id'],
+            'name': send_data['name'],
+            'description': send_data['description'],
+            'is_active': True,
+            'created_at': mock_update_use_case.execute.return_value.created_at
+        })
+
     def __init_all_none(self):
         return {
             'list_use_case': None,
             'create_use_case': None,
-            'get_use_case': None
+            'get_use_case': None,
+            'update_use_case': None,
         }
