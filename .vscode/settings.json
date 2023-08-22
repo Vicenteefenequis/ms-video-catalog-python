@@ -58,7 +58,6 @@
         "titleBar.inactiveForeground": "#e7e7e799"
     },
     "[python]": {
-        "editor.defaultFormatter": "ms-python.python"
+        "editor.defaultFormatter": "ms-python.autopep8"
     },
-    "python.formatting.provider": "none"
 }
