@@ -1,6 +1,7 @@
 
 from dataclasses import asdict, dataclass
 from typing import Callable
+from rest_framework import status
 from rest_framework.request import Request
 
 from rest_framework.response import Response
@@ -15,10 +16,10 @@ class CategoryResource(APIView):
 
     def post(self, request: Request):
         input_param = CreateCategoryUseCase.Input(
-            name=request.data['name']  # type: ignore
+            **request.data  # type: ignore
         )
         output = self.create_use_case().execute(input_param)
-        return Response(asdict(output))
+        return Response(asdict(output), status=status.HTTP_201_CREATED)
 
     def get(self, request: Request):
         input_param = ListCategoriesUseCase.Input(
@@ -27,11 +28,3 @@ class CategoryResource(APIView):
 
         output = self.list_use_case().execute(input_param)
         return Response(asdict(output))
-
-
-# @api_view(['POST'])
-# def hello_world(request: Request):
-#     create_use_case = CreateCategoryUseCase(CategoryInMemoryRepository())
-#     input_param = CreateCategoryUseCase.Input(name=request.data['name']) # type: ignore
-#     output = create_use_case.execute(input_param)
-#     return Response(asdict(output))

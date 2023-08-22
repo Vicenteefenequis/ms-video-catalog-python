@@ -6,7 +6,7 @@ groups = ["default", "dev"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:04564f087e912ff2b9256f901af2aa03fd91e0abe9f1f9e746bbf2b85f2a3a78"
+content_hash = "sha256:0eefa9a9d6a69ac43fe0275d4d533196d38bb07d7d4c1878a052329e850af40a"
 
 [[package]]
 name = "asgiref"
@@ -396,6 +396,19 @@ dependencies = [
 files = [
     {file = "pytest-cov-4.1.0.tar.gz", hash = "sha256:3904b13dfbfec47f003b8e77fd5b589cd11904a21ddf1ab38a64f204d6a10ef6"},
     {file = "pytest_cov-4.1.0-py3-none-any.whl", hash = "sha256:6ba70b9e97e69fcc3fb45bfeab2d0a138fb65c4d0d6a41ef33983ad114be8c3a"},
+]
+
+[[package]]
+name = "pytest-django"
+version = "4.5.2"
+requires_python = ">=3.5"
+summary = "A Django plugin for pytest."
+dependencies = [
+    "pytest>=5.4.0",
+]
+files = [
+    {file = "pytest-django-4.5.2.tar.gz", hash = "sha256:d9076f759bb7c36939dbdd5ae6633c18edfc2902d1a69fdbefd2426b970ce6c2"},
+    {file = "pytest_django-4.5.2-py3-none-any.whl", hash = "sha256:c60834861933773109334fe5a53e83d1ef4828f2203a1d6a0fa9972f4f75ab3e"},
 ]
 
 [[package]]
