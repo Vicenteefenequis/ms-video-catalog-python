@@ -30,7 +30,9 @@ class CategoryDjangoRepository(CategoryRepository):
         model.save()
 
     def delete(self, entity_id: str | UniqueEntityId) -> None:
-        raise NotImplementedError()
+        id_str = str(entity_id)
+        model = self._get(id_str)
+        model.delete()
 
     def search(self, input_params: CategoryRepository.SearchParams) -> CategoryRepository.SearchResult:
         raise NotImplementedError()
