@@ -6,7 +6,7 @@ groups = ["default", "dev"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:0eefa9a9d6a69ac43fe0275d4d533196d38bb07d7d4c1878a052329e850af40a"
+content_hash = "sha256:d89adbee37818e122653a7773498cf2755385e7326484928e9c0118375ca8d22"
 
 [[package]]
 name = "asgiref"
@@ -303,6 +303,19 @@ summary = "McCabe checker, plugin for flake8"
 files = [
     {file = "mccabe-0.7.0-py2.py3-none-any.whl", hash = "sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e"},
     {file = "mccabe-0.7.0.tar.gz", hash = "sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325"},
+]
+
+[[package]]
+name = "model-bakery"
+version = "1.15.0"
+requires_python = ">=3.8"
+summary = "Smart object creation facility for Django."
+dependencies = [
+    "django>=3.2",
+]
+files = [
+    {file = "model_bakery-1.15.0-py3-none-any.whl", hash = "sha256:c76813d8836ce339df4abd8648d6ed195fd0363f395dd1cb11b8a1898224e4e7"},
+    {file = "model_bakery-1.15.0.tar.gz", hash = "sha256:16178e608e2f414814e3383a9855e39c08810c9dee7b1d8e1354f1fdb7c013bc"},
 ]
 
 [[package]]

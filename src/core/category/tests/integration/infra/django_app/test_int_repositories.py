@@ -4,8 +4,10 @@ import unittest
 from core.__seedwork.domain.exceptions import NotFoundException
 from core.__seedwork.domain.value_objects import UniqueEntityId
 from core.category.domain.entities import Category
+from core.category.infra.django_app.mappers import CategoryModelMapper
 from core.category.infra.django_app.models import CategoryModel
 from core.category.infra.django_app.repositories import CategoryDjangoRepository
+from model_bakery import baker
 
 import pytest
 
@@ -74,3 +76,16 @@ class TestCategoryDjangoRepositoryInt(unittest.TestCase):
 
         category_found = self.repo.find_by_id(category.unique_entity_id)
         self.assertEqual(category_found, category)
+
+    def test_find_all(self):
+        models = baker.make(CategoryModel, _quantity=2)
+
+        categories = self.repo.find_all()
+
+        self.assertEqual(len(categories), 2)
+        self.assertEqual(
+            categories[0], CategoryModelMapper.to_entity(models[0])
+        )
+        self.assertEqual(
+            categories[1], CategoryModelMapper.to_entity(models[1])
+        )
