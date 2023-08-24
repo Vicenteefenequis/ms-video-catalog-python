@@ -1,15 +1,21 @@
 
 # pylint: disable=no-member
+import datetime
 import unittest
+from django.utils import timezone
+from model_bakery.recipe import seq
+from model_bakery import baker
+import pytest
+
+from core.category.domain.repositories import CategoryRepository
+
+
 from core.__seedwork.domain.exceptions import NotFoundException
 from core.__seedwork.domain.value_objects import UniqueEntityId
 from core.category.domain.entities import Category
 from core.category.infra.django_app.mappers import CategoryModelMapper
 from core.category.infra.django_app.models import CategoryModel
 from core.category.infra.django_app.repositories import CategoryDjangoRepository
-from model_bakery import baker
-
-import pytest
 
 
 @pytest.mark.django_db
@@ -146,3 +152,29 @@ class TestCategoryDjangoRepositoryInt(unittest.TestCase):
         self.assertEqual(
             assert_error.exception.args[0], f"Entity not found using ID '{category.id}'"
         )
+
+    def test_search_when_params_is_empty(self):
+        models = baker.make(
+            CategoryModel,
+            _quantity=16,
+            created_at=seq(
+                datetime.datetime.now(),
+                datetime.timedelta(days=1)  # type: ignore
+            ),
+        )
+
+        models.reverse()
+
+        search_result = self.repo.search(CategoryRepository.SearchParams())
+        self.assertIsInstance(search_result, CategoryRepository.SearchResult)
+        self.assertEqual(search_result, CategoryRepository.SearchResult(
+            items=[
+                CategoryModelMapper.to_entity(model) for model in models[:15]
+            ],
+            total=16,
+            current_page=1,
+            per_page=15,
+            sort=None,
+            sort_dir=None,
+            filter=None
+        ))
