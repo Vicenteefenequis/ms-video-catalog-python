@@ -1,6 +1,8 @@
 
 # pylint: disable=no-member
 import unittest
+from core.__seedwork.domain.exceptions import NotFoundException
+from core.__seedwork.domain.value_objects import UniqueEntityId
 from core.category.domain.entities import Category
 from core.category.infra.django_app.models import CategoryModel
 from core.category.infra.django_app.repositories import CategoryDjangoRepository
@@ -44,3 +46,31 @@ class TestCategoryDjangoRepositoryInt(unittest.TestCase):
         self.assertEqual(model.description, 'some description')
         self.assertFalse(model.is_active)
         self.assertEqual(model.created_at, category.created_at)
+
+    def test_throw_not_found_exception_in_find_by_id(self):
+        with self.assertRaises(NotFoundException) as assert_error:
+            self.repo.find_by_id('not-found')
+        self.assertEqual(
+            assert_error.exception.args[0], "Entity not found using ID 'not-found'")
+
+        unique_entity_id = UniqueEntityId(
+            '114e527b-d222-44f1-86c7-1cb621f44849')
+        with self.assertRaises(NotFoundException) as assert_error:
+            self.repo.find_by_id(unique_entity_id)
+        self.assertEqual(
+            assert_error.exception.args[0],
+            "Entity not found using ID '114e527b-d222-44f1-86c7-1cb621f44849'"
+        )
+
+    def test_find_by_id(self):
+        category = Category(
+            name='Movie',
+        )
+        self.repo.insert(category)
+
+        category_found = self.repo.find_by_id(category.id)
+
+        self.assertEqual(category_found, category)
+
+        category_found = self.repo.find_by_id(category.unique_entity_id)
+        self.assertEqual(category_found, category)
