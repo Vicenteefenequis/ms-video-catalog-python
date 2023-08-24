@@ -178,3 +178,54 @@ class TestCategoryDjangoRepositoryInt(unittest.TestCase):
             sort_dir=None,
             filter=None
         ))
+
+    def test_search_applying_filter_and_paginate(self):
+
+        default_props = {
+            'description': None,
+            'is_active': True,
+            'created_at': timezone.now(),
+        }
+        models = CategoryModel.objects.bulk_create([
+            CategoryModel(
+                id=UniqueEntityId().id,
+                name='test',
+                **default_props
+            ),
+            CategoryModel(
+                id=UniqueEntityId().id,
+                name='a',
+                **default_props
+            ),
+            CategoryModel(
+                id=UniqueEntityId().id,
+                name='TEST',
+                **default_props
+            ),
+            CategoryModel(
+                id=UniqueEntityId().id,
+                name='TeSt',
+                **default_props
+            ),
+        ])
+
+        search_params = CategoryRepository.SearchParams(
+            page=1,
+            per_page=2,
+            filter='E'
+        )
+
+        search_result = self.repo.search(search_params)
+
+        self.assertEqual(search_result, CategoryRepository.SearchResult(
+            items=[
+                CategoryModelMapper.to_entity(models[0]),
+                CategoryModelMapper.to_entity(models[2]),
+            ],
+            total=3,
+            current_page=1,
+            per_page=2,
+            sort=None,
+            sort_dir=None,
+            filter='E'
+        ))

@@ -61,6 +61,7 @@ class CategoryDjangoRepository(CategoryRepository):
             per_page=input_params.per_page,  # type: ignore
             sort=input_params.sort,
             sort_dir=input_params.sort_dir,
+            filter='E'
         )
 
     def _get(self, entity_id: str) -> CategoryModel:
