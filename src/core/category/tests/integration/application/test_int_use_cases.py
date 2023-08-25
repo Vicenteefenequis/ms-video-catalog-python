@@ -1,16 +1,19 @@
 
-
-from django.utils import timezone
 import unittest
 import pytest
-
+from django.utils import timezone
 from model_bakery import baker
 
 from core.__seedwork.domain.exceptions import NotFoundException
 from core.category.infra.django_app.mappers import CategoryModelMapper
 from core.category.infra.django_app.models import CategoryModel
 from core.category.application.dto import CategoryOutput, CategoryOutputMapper
-from core.category.application.use_cases import CreateCategoryUseCase, GetCategoryUseCase, ListCategoriesUseCase
+from core.category.application.use_cases import (
+    CreateCategoryUseCase,
+    GetCategoryUseCase,
+    ListCategoriesUseCase,
+    UpdateCategoryUseCase,
+)
 from core.category.infra.django_app.repositories import CategoryDjangoRepository
 
 
@@ -174,3 +177,51 @@ class TestListCategoriesUseCase(unittest.TestCase):
     def from_model_to_output(self, model: CategoryModel) -> CategoryOutput:
         entity = CategoryModelMapper.to_entity(model)
         return CategoryOutputMapper.without_child().to_output(entity)
+
+
+@pytest.mark.django_db
+class TestUpdateCategoryUseCase(unittest.TestCase):
+    category_repo: CategoryDjangoRepository
+    use_case: UpdateCategoryUseCase
+
+    def setUp(self) -> None:
+        self.category_repo = CategoryDjangoRepository()
+        self.use_case = UpdateCategoryUseCase(self.category_repo)
+
+    def test_execute(self):
+        model = baker.make(CategoryModel, name='Movie')
+
+        input_param = UpdateCategoryUseCase.Input(
+            id=str(model.id),
+            name='Movie 2',
+            description='some description',
+            is_active=False
+        )
+        output = self.use_case.execute(input_param)
+        self.assertEqual(output, CategoryOutput(
+            id=str(model.id),
+            name='Movie 2',
+            description='some description',
+            is_active=False,
+            created_at=model.created_at
+        ))
+
+        category = self.category_repo.find_by_id(str(model.id))
+        self.assertEqual(category.name, 'Movie 2')
+        self.assertEqual(category.description, 'some description')
+        self.assertFalse(category.is_active)
+        self.assertEqual(category.created_at, model.created_at)
+
+    def test_throw_exception_when_category_not_found(self):
+        input_param = UpdateCategoryUseCase.Input(
+            id='fake_id',
+            name='Movie 2',
+            description='some description',
+            is_active=True
+        )
+        with self.assertRaises(NotFoundException) as assert_error:
+            self.use_case.execute(input_param)
+        self.assertEqual(
+            assert_error.exception.args[0],
+            "Entity not found using ID 'fake_id'"
+        )
