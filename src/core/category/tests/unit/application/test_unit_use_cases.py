@@ -1,9 +1,11 @@
 
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Optional
 import unittest
 from unittest.mock import patch
+
+from django.utils import timezone
 from core.__seedwork.application.dto import SearchInput
 from core.__seedwork.application.use_cases import UseCase
 from core.__seedwork.domain.exceptions import NotFoundException
@@ -169,7 +171,7 @@ class TestListCategoriesUseCase(unittest.TestCase):
             Category(name='test 1'),
             Category(
                 name='test 2',
-                created_at=datetime.now() + timedelta(seconds=200)
+                created_at=timezone.now() + timedelta(seconds=200)
             ),
         ]
 
