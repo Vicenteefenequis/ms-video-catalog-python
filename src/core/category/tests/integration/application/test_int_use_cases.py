@@ -10,6 +10,7 @@ from core.category.infra.django_app.models import CategoryModel
 from core.category.application.dto import CategoryOutput, CategoryOutputMapper
 from core.category.application.use_cases import (
     CreateCategoryUseCase,
+    DeleteCategoryUseCase,
     GetCategoryUseCase,
     ListCategoriesUseCase,
     UpdateCategoryUseCase,
@@ -47,7 +48,7 @@ class TestCreateCategoryUseCaseInt(unittest.TestCase):
 
 
 @pytest.mark.django_db
-class TestGetCategoryUseCaseUnit(unittest.TestCase):
+class TestGetCategoryUseCaseInt(unittest.TestCase):
     use_case: GetCategoryUseCase
     category_repo: CategoryDjangoRepository
 
@@ -78,7 +79,7 @@ class TestGetCategoryUseCaseUnit(unittest.TestCase):
 
 
 @pytest.mark.django_db
-class TestListCategoriesUseCase(unittest.TestCase):
+class TestListCategoriesUseCaseInt(unittest.TestCase):
     use_case: ListCategoriesUseCase
     category_repo: CategoryDjangoRepository
 
@@ -180,7 +181,7 @@ class TestListCategoriesUseCase(unittest.TestCase):
 
 
 @pytest.mark.django_db
-class TestUpdateCategoryUseCase(unittest.TestCase):
+class TestUpdateCategoryUseCaseInt(unittest.TestCase):
     category_repo: CategoryDjangoRepository
     use_case: UpdateCategoryUseCase
 
@@ -219,6 +220,38 @@ class TestUpdateCategoryUseCase(unittest.TestCase):
             description='some description',
             is_active=True
         )
+        with self.assertRaises(NotFoundException) as assert_error:
+            self.use_case.execute(input_param)
+        self.assertEqual(
+            assert_error.exception.args[0],
+            "Entity not found using ID 'fake_id'"
+        )
+
+
+@pytest.mark.django_db
+class TestDeleteCategoryUseCaseInt(unittest.TestCase):
+    category_repo: CategoryDjangoRepository
+    use_case: DeleteCategoryUseCase
+
+    def setUp(self) -> None:
+        self.category_repo = CategoryDjangoRepository()
+        self.use_case = DeleteCategoryUseCase(self.category_repo)
+
+    def test_execute(self):
+        model = baker.make(CategoryModel, name='Movie')
+
+        input_param = DeleteCategoryUseCase.Input(id=str(model.id))
+        self.use_case.execute(input_param)
+
+        with self.assertRaises(NotFoundException) as assert_error:
+            self.category_repo.find_by_id(str(model.id))
+        self.assertEqual(
+            assert_error.exception.args[0],
+            f"Entity not found using ID '{model.id}'"
+        )
+
+    def test_throw_exception_when_category_not_found(self):
+        input_param = DeleteCategoryUseCase.Input(id='fake_id')
         with self.assertRaises(NotFoundException) as assert_error:
             self.use_case.execute(input_param)
         self.assertEqual(
