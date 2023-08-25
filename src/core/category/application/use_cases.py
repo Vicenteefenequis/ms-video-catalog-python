@@ -21,9 +21,9 @@ class CreateCategoryUseCase(UseCase):
             is_active=input_param.is_active
         )
         self.category_repo.insert(category)
-        return self.__to_output(category)  # type: ignore
+        return self.__to_output(category)
 
-    def __to_output(self, category: Category):
+    def __to_output(self, category: Category) -> 'Output':
         return CategoryOutputMapper.without_child().to_output(category)
 
     @dataclass(slots=True, frozen=True)
